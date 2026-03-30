@@ -80,34 +80,42 @@ select option{color:#333;background:#fff}
 .analysis-step.done::before{content:'✓ ';color:#10b981}
 /* Result */
 .result-screen{padding-top:40px;gap:20px;padding-bottom:40px;background:radial-gradient(ellipse at 50% 20%,rgba(220,38,38,.18) 0%,transparent 55%),radial-gradient(ellipse at 50% 80%,rgba(245,158,11,.12) 0%,transparent 55%)}
-.result-card{background:#fff;border-radius:24px;padding:36px 24px;width:100%;max-width:380px;color:#1a1a1a;text-align:center;box-shadow:0 0 0 3px #dc2626,0 0 40px rgba(220,38,38,.15),0 20px 60px rgba(0,0,0,.15)}
-.result-name{font-size:15px;color:#999;margin-bottom:8px}
+.result-card{background:rgba(20,20,20,.95);backdrop-filter:blur(20px);border:1px solid rgba(255,255,255,.1);border-radius:24px;padding:36px 24px;width:100%;max-width:380px;color:#fff;text-align:center;box-shadow:0 0 60px rgba(220,38,38,.1),0 20px 60px rgba(0,0,0,.3)}
+.result-name{font-size:15px;color:#777;margin-bottom:8px}
 .result-object-emoji{font-size:80px;line-height:1;margin:4px 0}
 .result-size{font-size:84px;font-weight:900;color:#dc2626;background:linear-gradient(135deg,#dc2626,#e84a1e,#f59e0b);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;line-height:1}
 .result-unit{font-size:24px;font-weight:800;-webkit-text-fill-color:#999}
 .result-girth{font-size:15px;font-weight:700;color:#888;margin-top:4px}
 .result-girth span{color:#dc2626;font-size:18px;font-weight:900}
-.result-object-name{font-size:22px;font-weight:800;color:#1a1a1a;margin-top:8px}
-.result-object-desc{font-size:14px;color:#888;margin-top:2px}
-.result-percentile{margin:20px 0;padding:16px;background:#f5f5f5;border-radius:16px}
-.percentile-text{font-size:13px;color:#999;margin-bottom:6px}
+.result-object-name{font-size:22px;font-weight:800;color:#fff;margin-top:8px}
+.result-object-desc{font-size:14px;color:#999;margin-top:2px}
+.result-percentile{margin:20px 0;padding:16px;background:rgba(255,255,255,.06);border-radius:16px}
+.percentile-text{font-size:13px;color:#888;margin-bottom:6px}
 .percentile-value{font-size:32px;font-weight:900;color:#dc2626}
-.percentile-bar{height:8px;background:#e5e5e5;border-radius:4px;margin-top:8px;overflow:hidden}
+.percentile-bar{height:8px;background:rgba(255,255,255,.1);border-radius:4px;margin-top:8px;overflow:hidden}
 .percentile-bar-fill{height:100%;background:linear-gradient(90deg,#f59e0b,#dc2626);border-radius:4px;transition:width 1.5s ease}
 .result-factors{display:flex;gap:8px;margin-top:12px}
-.factor{flex:1;background:#f5f5f5;border-radius:12px;padding:10px 6px;text-align:center}
+.factor{flex:1;background:rgba(255,255,255,.06);border-radius:12px;padding:10px 6px;text-align:center}
 .factor-emoji{font-size:20px}
-.factor-label{font-size:10px;color:#999;margin-top:2px}
-.factor-value{font-size:13px;font-weight:700;color:#333;margin-top:2px}
-.factor-value.positive{color:#16a34a}
-.factor-value.negative{color:#dc2626}
-.result-divider{width:50px;height:2px;background:#eee;margin:16px auto}
-.result-comment{margin:8px 0;padding:14px;background:linear-gradient(135deg,#fef3c7,#fee2e2);border-radius:14px}
-.comment-main{font-size:17px;font-weight:800;color:#1a1a1a}
-.comment-sub{font-size:13px;color:#666;margin-top:4px}
-.result-factors-title{font-size:11px;color:#aaa;letter-spacing:2px;text-transform:uppercase;margin-bottom:4px}
-.result-disclaimer{font-size:10px;color:#ccc;margin-top:16px}
-.result-watermark{font-size:11px;color:#ddd;margin-top:8px;letter-spacing:1px}
+.factor-label{font-size:10px;color:#777;margin-top:2px}
+.factor-value{font-size:13px;font-weight:700;color:#eee;margin-top:2px}
+.factor-value.positive{color:#f59e0b}
+.factor-value.negative{color:#ef4444}
+.result-divider{width:50px;height:2px;background:rgba(255,255,255,.1);margin:16px auto}
+.result-comment{margin:8px 0;padding:14px;background:rgba(220,38,38,.12);border:1px solid rgba(220,38,38,.2);border-radius:14px}
+.comment-main{font-size:17px;font-weight:800;color:#fff}
+.comment-sub{font-size:13px;color:#aaa;margin-top:4px}
+.result-factors-title{font-size:11px;color:#666;letter-spacing:2px;text-transform:uppercase;margin-bottom:4px}
+.result-score{margin:16px 0;text-align:center}
+.result-score-label{font-size:13px;color:#888;margin-bottom:4px}
+.result-score-value{font-size:48px;font-weight:900;background:linear-gradient(135deg,#f59e0b,#dc2626);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;color:#f59e0b}
+.result-score-max{font-size:18px;-webkit-text-fill-color:#666;color:#666}
+.result-specs{display:flex;gap:12px;justify-content:center;margin:8px 0}
+.result-spec{text-align:center}
+.result-spec-val{font-size:24px;font-weight:800;color:#fff}
+.result-spec-label{font-size:11px;color:#777;margin-top:2px}
+.result-disclaimer{font-size:10px;color:#555;margin-top:16px}
+.result-watermark{font-size:11px;color:#444;margin-top:8px;letter-spacing:1px}
 .share-explain{font-size:12px;color:rgba(255,255,255,.4);text-align:center;line-height:1.5;margin:-4px 0 4px}
 /* Group Ranking */
 .ranking-section{width:100%;max-width:380px;background:rgba(220,38,38,.08);border:1px solid rgba(220,38,38,.2);backdrop-filter:blur(10px);border-radius:20px;padding:20px;margin-top:4px}
@@ -300,12 +308,20 @@ select option{color:#333;background:#fff}
   <div class="result-card fade-in" id="result-card">
     <div class="result-name" id="r-name"></div>
     <div class="result-object-emoji fade-in fade-in-d1" id="r-emoji"></div>
-    <div class="count-up" style="animation-delay:.3s">
-      <span class="result-size" id="r-size"></span>
-      <span class="result-unit">cm</span>
+    <div class="result-specs fade-in fade-in-d1">
+      <div class="result-spec">
+        <div class="result-spec-val" id="r-size">-</div>
+        <div class="result-spec-label">길이 (cm)</div>
+      </div>
+      <div class="result-spec" style="color:#555;font-size:24px;padding-top:4px">×</div>
+      <div class="result-spec">
+        <div class="result-spec-val" id="r-girth">-</div>
+        <div class="result-spec-label">둘레 (cm)</div>
+      </div>
     </div>
-    <div class="result-girth fade-in fade-in-d2" id="r-girth-wrap">
-      둘레 <span id="r-girth"></span>cm
+    <div class="result-score fade-in fade-in-d2">
+      <div class="result-score-label">총점</div>
+      <div><span class="result-score-value" id="r-score">-</span><span class="result-score-max"> / 100</span></div>
     </div>
     <div class="result-object-name fade-in fade-in-d2" id="r-obj-name"></div>
     <div class="result-object-desc fade-in fade-in-d2" id="r-obj-desc"></div>
@@ -361,28 +377,23 @@ const COUNTRIES = {
 };
 
 const OBJECTS = [
-  {min:0,max:7.5,emoji:'🩹',name:'밴드',desc:'상처만큼 작지만 치유력은 최강'},
-  {min:7.5,max:8.5,emoji:'🔋',name:'건전지',desc:'작지만 에너자이저급 파워'},
-  {min:8.5,max:9.5,emoji:'🎧',name:'에어팟 케이스',desc:'주머니에 쏙 들어가는 핏'},
-  {min:9.5,max:10,emoji:'💳',name:'신용카드 세로',desc:'얇지만 결제력은 무한대'},
-  {min:10,max:10.7,emoji:'🧊',name:'소주잔',desc:'원샷 하기 딱 좋은 사이즈'},
-  {min:10.7,max:11.3,emoji:'🥢',name:'나무젓가락',desc:'일회용이라 하지마...'},
-  {min:11.3,max:11.8,emoji:'🍭',name:'막대사탕',desc:'달콤한 유혹 그 자체'},
-  {min:11.8,max:12.3,emoji:'🍫',name:'두쫀쿠',desc:'달콤한 한입 사이즈'},
-  {min:12.3,max:12.7,emoji:'🌭',name:'핫도그',desc:'케첩 머스타드는 선택'},
-  {min:12.7,max:13.2,emoji:'🍺',name:'맥주캔',desc:'시원하게 원샷 하는 사이즈'},
-  {min:13.2,max:13.7,emoji:'🍌',name:'편의점 바나나',desc:'국민 평균의 자부심'},
-  {min:13.7,max:14.2,emoji:'📱',name:'리모컨',desc:'채널 돌리기 딱 좋은 그립'},
-  {min:14.2,max:14.8,emoji:'🌽',name:'옥수수',desc:'알이 꽉 찬 황금 사이즈'},
-  {min:14.8,max:15.5,emoji:'☕',name:'스타벅스 텀블러',desc:'여유롭게 즐기는 넉넉한 사이즈'},
-  {min:15.5,max:16.5,emoji:'🥒',name:'오이',desc:'팩하기 아까운 프리미엄'},
-  {min:16.5,max:17.5,emoji:'🍦',name:'수박바',desc:'여름에 인기 폭발'},
-  {min:17.5,max:18.5,emoji:'🍆',name:'가지',desc:'이모지계의 전설 그 자체'},
-  {min:18.5,max:19.5,emoji:'🦴',name:'족발 뼈다귀',desc:'쫄면이랑 먹으면 환상'},
-  {min:19.5,max:20.5,emoji:'🥖',name:'바게트',desc:'프랑스산 명품 사이즈'},
-  {min:20.5,max:21.5,emoji:'🥫',name:'프링글스통',desc:'한번 손 넣으면 못 빼는'},
-  {min:21.5,max:22.5,emoji:'🍾',name:'와인병',desc:'특별한 날 꺼내는 빈티지'},
-  {min:22.5,max:99,emoji:'⚾',name:'야구배트',desc:'MLB 드래프트 1순위'}
+  {min:0,max:7.5,emoji:'💊',name:'알약',desc:'삼키기도 민망한 사이즈'},
+  {min:7.5,max:8.5,emoji:'🔋',name:'AAA건전지',desc:'리모컨에나 넣으세요'},
+  {min:8.5,max:9.5,emoji:'👆',name:'엄지손가락',desc:'좋아요 누르기 딱 좋은'},
+  {min:9.5,max:10.5,emoji:'🌶️',name:'꽈리고추',desc:'작은 고추는 맵다며...?'},
+  {min:10.5,max:11.3,emoji:'🥕',name:'미니당근',desc:'토끼가 좋아할 사이즈'},
+  {min:11.3,max:12,emoji:'🌭',name:'소시지',desc:'케첩 뿌려먹는 맛'},
+  {min:12,max:12.7,emoji:'🫒',name:'김밥 한 줄',desc:'참기름 향이 나는'},
+  {min:12.7,max:13.3,emoji:'🍌',name:'바나나',desc:'국민 과일 국민 사이즈'},
+  {min:13.3,max:14,emoji:'🌽',name:'옥수수',desc:'알이 꽉 찬 황금비율'},
+  {min:14,max:14.8,emoji:'🥒',name:'오이',desc:'팩하기 아까운 프리미엄'},
+  {min:14.8,max:15.5,emoji:'🍠',name:'꿀고구마',desc:'달콤하고 굵직한'},
+  {min:15.5,max:16.5,emoji:'🥕',name:'당근',desc:'당근이지~ 이 사이즈면'},
+  {min:16.5,max:17.5,emoji:'🌶️',name:'청양고추',desc:'굵고 매운 프리미엄급'},
+  {min:17.5,max:18.5,emoji:'🍆',name:'가지',desc:'이모지계의 레전드'},
+  {min:18.5,max:19.5,emoji:'🦴',name:'족발',desc:'쫄면과 환상의 궁합'},
+  {min:19.5,max:21,emoji:'🥖',name:'바게트',desc:'프랑스산 장인정신'},
+  {min:21,max:99,emoji:'⚾',name:'야구배트',desc:'MLB 드래프트 1순위'}
 ];
 
 const COMMENTS = [
@@ -899,7 +910,14 @@ function calculateResult() {
   state.girth = girth;
   state.percentile = pct;
 
-  return { size: predicted, girth, percentile: pct, factors };
+  // Total score (0-100): length 60% + girth 40%
+  const girthZ = (girth - 11.5) / 1.2;
+  const girthPct = Math.round(normalCDF(girthZ) * 100);
+  const totalScore = Math.round(pct * 0.6 + girthPct * 0.4);
+
+  state.totalScore = totalScore;
+
+  return { size: predicted, girth, percentile: pct, totalScore, factors };
 }
 
 // ============ UI NAVIGATION ============
@@ -1584,7 +1602,7 @@ const App = {
   },
 
   showResult() {
-    const { size, girth, percentile, factors } = calculateResult();
+    const { size, girth, percentile, totalScore, factors } = calculateResult();
 
     // Add to group
     const me = { name: state.name, size };
@@ -1602,6 +1620,7 @@ const App = {
     document.getElementById('r-emoji').textContent = obj.emoji;
     document.getElementById('r-size').textContent = size;
     document.getElementById('r-girth').textContent = girth;
+    document.getElementById('r-score').textContent = totalScore;
     document.getElementById('r-obj-name').textContent = `"${obj.name}" 사이즈`;
     document.getElementById('r-obj-desc').textContent = obj.desc;
     document.getElementById('r-percentile').textContent = `상위 ${100 - percentile}%`;
