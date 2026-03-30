@@ -510,11 +510,11 @@ async function analyzeFace(canvas) {
 
   let detection = null;
 
-  // Try SsdMobilenetv1 first (more accurate)
+  // Try SsdMobilenetv1 first (more accurate, higher threshold)
   try {
-    detection = await faceapi.detectSingleFace(canvas, new faceapi.SsdMobilenetv1Options({ minConfidence: 0.3 }))
+    detection = await faceapi.detectSingleFace(canvas, new faceapi.SsdMobilenetv1Options({ minConfidence: 0.5 }))
       .withFaceLandmarks();
-    if (detection) console.log('Face detected with SSD');
+    if (detection) console.log('Face detected with SSD, score:', detection.detection.score);
   } catch (e) {
     console.warn('SSD detector failed:', e);
   }
@@ -522,26 +522,49 @@ async function analyzeFace(canvas) {
   // Fallback to TinyFaceDetector
   if (!detection) {
     try {
-      detection = await faceapi.detectSingleFace(canvas, new faceapi.TinyFaceDetectorOptions({ inputSize: 416, scoreThreshold: 0.2 }))
+      detection = await faceapi.detectSingleFace(canvas, new faceapi.TinyFaceDetectorOptions({ inputSize: 416, scoreThreshold: 0.4 }))
         .withFaceLandmarks();
-      if (detection) console.log('Face detected with Tiny');
+      if (detection) console.log('Face detected with Tiny, score:', detection.detection.score);
     } catch (e) {
       console.warn('Tiny detector failed:', e);
     }
   }
 
-  // Try with different input sizes
-  if (!detection) {
-    for (const size of [320, 512]) {
-      try {
-        detection = await faceapi.detectSingleFace(canvas, new faceapi.TinyFaceDetectorOptions({ inputSize: size, scoreThreshold: 0.15 }))
-          .withFaceLandmarks();
-        if (detection) { console.log('Face detected with size', size); break; }
-      } catch (e) { /* skip */ }
-    }
+  if (!detection) return null;
+
+  // ===== VALIDATION: face must be centered & large enough =====
+  const box = detection.detection.box;
+  const faceCenterX = (box.x + box.width / 2) / canvas.width;
+  const faceCenterY = (box.y + box.height / 2) / canvas.height;
+  const faceWidthRatio = box.width / canvas.width;
+  const faceHeightRatio = box.height / canvas.height;
+
+  console.log('Face position:', {
+    centerX: faceCenterX.toFixed(2), centerY: faceCenterY.toFixed(2),
+    widthRatio: faceWidthRatio.toFixed(2), heightRatio: faceHeightRatio.toFixed(2)
+  });
+
+  // Face center must be within middle 60% of frame
+  if (faceCenterX < 0.2 || faceCenterX > 0.8) {
+    console.log('Face rejected: too far left/right');
+    return { rejected: 'center', message: '얼굴을 가운데로 맞춰주세요' };
+  }
+  if (faceCenterY < 0.15 || faceCenterY > 0.75) {
+    console.log('Face rejected: too far up/down');
+    return { rejected: 'center', message: '얼굴을 가운데로 맞춰주세요' };
   }
 
-  if (!detection) return null;
+  // Face must be at least 18% of frame width (not too far away)
+  if (faceWidthRatio < 0.18) {
+    console.log('Face rejected: too small');
+    return { rejected: 'size', message: '카메라에 더 가까이 와주세요' };
+  }
+
+  // Face must not be too large (> 85% means too close, can't measure properly)
+  if (faceWidthRatio > 0.85) {
+    console.log('Face rejected: too large');
+    return { rejected: 'size', message: '카메라에서 조금 떨어져주세요' };
+  }
 
   const lm = detection.landmarks;
   const nose = lm.getNose();
@@ -756,7 +779,9 @@ const App = {
       status.textContent = '얼굴 분석 중...';
       const result = await analyzeFace(canvas);
 
-      if (result) {
+      if (result && result.rejected) {
+        this._showRetry(wrap, btn, status, 'face', result.message);
+      } else if (result && result.noseRatio) {
         state.noseRatio = result.noseRatio;
         state.faceDetected = true;
 
@@ -899,7 +924,9 @@ const App = {
     try {
       await loadFaceModels();
       const result = await analyzeFace(canvas);
-      if (result) {
+      if (result && result.rejected) {
+        this._showRetry(wrap, btn, status, 'face', result.message);
+      } else if (result && result.noseRatio) {
         state.noseRatio = result.noseRatio;
         state.faceDetected = true;
         await this._drawFaceLandmarks(canvas, overlay, wrap);
