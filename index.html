@@ -882,7 +882,17 @@ function calculateResult() {
   const bmiAdj = ((23 - bmi) / 4) * 0.3;
   predicted += bmiAdj;
 
-  // 5. Slight positive bias for shareability
+  // 5. Tall + Lean synergy bonus
+  // 키 크고 마른 체형은 추가 보정 (지방패드 적음 + 체형 비율)
+  const isTall = state.height > c.h;
+  const isLean = bmi < 22;
+  if (isTall && isLean) {
+    const synergy = ((state.height - c.h) / 10) * ((22 - bmi) / 5) * 0.4;
+    predicted += Math.min(synergy, 1.5); // 최대 1.5cm 보너스
+    factors.push({ emoji:'🦒', label:'체형 보너스', value: Math.min(synergy, 1.5) });
+  }
+
+  // 6. Slight positive bias for shareability
   predicted += (Math.random() * 0.6 - 0.1);
 
   // Clamp
