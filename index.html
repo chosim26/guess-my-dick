@@ -904,16 +904,28 @@ function calculateResult() {
 
   // ===== GIRTH (둘레) CALCULATION =====
   // Average girth: ~11.5cm circumference
-  // Nose width correlates with girth (separate from length)
+  // Girth must correlate with length (longer = typically thicker)
   let girth = 11.5;
+
+  // 1. Length correlation (가장 중요 - 길이에 비례)
+  const lengthDev = predicted - c.avg;
+  girth += lengthDev * 0.35; // 길이 1cm 증가 → 둘레 0.35cm 증가
+
+  // 2. Nose width (독립적 굵기 보정)
   if (state.noseRatio !== null) {
     const noseW = state.noseWidth ?? 0.22;
     const avgNoseW = 0.22;
-    girth += ((noseW - avgNoseW) / 0.02) * 0.4;
+    girth += ((noseW - avgNoseW) / 0.02) * 0.25;
   }
-  // BMI slightly affects girth perception
-  girth += bmiAdj * 0.5;
-  girth += (Math.random() * 0.4 - 0.1);
+
+  // 3. BMI slightly affects girth
+  girth += bmiAdj * 0.3;
+  girth += (Math.random() * 0.3);
+
+  // Realistic ratio: girth should be ~75-95% of length
+  const minGirth = predicted * 0.7;
+  const maxGirth = predicted * 1.0;
+  girth = Math.max(minGirth, Math.min(maxGirth, girth));
   girth = Math.max(7, Math.min(16, girth));
   girth = Math.round(girth * 10) / 10;
 
