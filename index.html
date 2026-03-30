@@ -1,0 +1,1280 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>Guess My Dick - AI 사이즈 예측</title>
+<meta property="og:title" content="Guess My Dick - AI 사이즈 예측">
+<meta property="og:description" content="AI가 당신의 얼굴과 손을 분석해 사이즈를 과학적으로 예측합니다">
+<meta property="og:type" content="website">
+<link rel="preconnect" href="https://cdn.jsdelivr.net">
+<link href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{--red:#dc2626;--crimson:#7f1d1d;--gold:#f59e0b;--amber:#fbbf24;--dark:#0a0a0a;--card:rgba(255,255,255,.05)}
+body{font-family:'Pretendard Variable',system-ui,-apple-system,sans-serif;background:#0a0a0a;background-image:radial-gradient(ellipse at 20% 50%,rgba(220,38,38,.08) 0%,transparent 50%),radial-gradient(ellipse at 80% 20%,rgba(245,158,11,.06) 0%,transparent 50%);min-height:100dvh;color:#fff;overflow-x:hidden;-webkit-tap-highlight-color:transparent}
+.screen{display:none;flex-direction:column;align-items:center;min-height:100dvh;padding:20px;padding-top:env(safe-area-inset-top,20px)}
+.screen.active{display:flex}
+/* Landing */
+.landing{text-align:center;justify-content:center;gap:32px}
+.logo{font-size:14px;letter-spacing:6px;opacity:.7;text-transform:uppercase}
+.hero-title{font-size:52px;font-weight:900;line-height:1.1;text-shadow:0 4px 30px rgba(0,0,0,.2)}
+.hero-title span{display:block;font-size:72px;background:linear-gradient(to right,#dc2626,#f59e0b);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.hero-sub{font-size:18px;opacity:.85;line-height:1.5;max-width:300px;margin:0 auto}
+.hero-tags{display:flex;gap:8px;justify-content:center;flex-wrap:wrap}
+.tag{background:rgba(220,38,38,.15);border:1px solid rgba(220,38,38,.25);backdrop-filter:blur(10px);padding:6px 14px;border-radius:20px;font-size:13px;font-weight:600}
+.group-invite{background:rgba(220,38,38,.1);border:1px solid rgba(220,38,38,.2);backdrop-filter:blur(10px);border-radius:16px;padding:16px;margin-top:-10px;text-align:center}
+.group-invite h3{font-size:16px;margin-bottom:8px}
+.group-invite .ranking-preview{font-size:14px;opacity:.9}
+/* Buttons */
+.btn{width:100%;max-width:360px;padding:18px;border:none;border-radius:16px;font-size:18px;font-weight:700;cursor:pointer;transition:all .2s;font-family:inherit}
+.btn-primary{background:linear-gradient(135deg,#dc2626,#f59e0b);color:#fff;box-shadow:0 8px 30px rgba(220,38,38,.3)}
+.btn-primary:active{transform:scale(.97)}
+.btn-secondary{background:rgba(255,255,255,.08);color:#fff;border:1px solid rgba(255,255,255,.15);backdrop-filter:blur(10px)}
+.btn-small{padding:12px;font-size:15px;border-radius:12px}
+/* Step screens */
+.step-screen{padding-top:60px;gap:24px}
+.step-header{text-align:center}
+.step-num{font-size:13px;opacity:.6;letter-spacing:2px;margin-bottom:4px}
+.step-title{font-size:28px;font-weight:800}
+.step-desc{font-size:15px;opacity:.75;margin-top:6px}
+.progress-bar{width:100%;max-width:360px;height:4px;background:rgba(255,255,255,.2);border-radius:2px;overflow:hidden}
+.progress-fill{height:100%;background:linear-gradient(90deg,#dc2626,#f59e0b);border-radius:2px;transition:width .4s ease}
+/* Form */
+.form-group{width:100%;max-width:360px;display:flex;flex-direction:column;gap:14px}
+.input-wrap{position:relative}
+.input-wrap label{font-size:12px;opacity:.7;margin-bottom:4px;display:block}
+input,select{width:100%;padding:16px;border:1px solid rgba(255,255,255,.12);border-radius:14px;background:rgba(255,255,255,.05);color:#fff;font-size:16px;font-family:inherit;outline:none;transition:border-color .2s}
+input::placeholder{color:rgba(255,255,255,.5)}
+input:focus,select:focus{border-color:#fff}
+select{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='white' viewBox='0 0 16 16'%3E%3Cpath d='M8 11L3 6h10z'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 14px center}
+select option{color:#333;background:#fff}
+.row{display:flex;gap:12px}
+.row>*{flex:1}
+/* Camera */
+.camera-wrap{position:relative;width:100%;max-width:360px;aspect-ratio:3/4;border-radius:20px;overflow:hidden;background:#000}
+.camera-wrap video{width:100%;height:100%;object-fit:cover;transform:scaleX(-1)}
+.camera-wrap canvas{position:absolute;top:0;left:0;width:100%;height:100%;pointer-events:none}
+.face-guide{position:absolute;top:50%;left:50%;transform:translate(-50%,-55%);width:55%;height:55%;border:3px dashed rgba(255,255,255,.5);border-radius:50%;pointer-events:none}
+.face-guide::after{content:'정면을 바라봐주세요';position:absolute;bottom:-36px;left:50%;transform:translateX(-50%);white-space:nowrap;font-size:13px;opacity:.7}
+.hand-guide{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-size:80px;opacity:.3;pointer-events:none}
+.camera-status{position:absolute;top:16px;left:50%;transform:translateX(-50%);background:rgba(0,0,0,.5);padding:6px 16px;border-radius:20px;font-size:13px;backdrop-filter:blur(4px);white-space:nowrap}
+.camera-status.success{background:rgba(16,185,129,.7)}
+.camera-status.error{background:rgba(239,68,68,.7)}
+.capture-btn{width:72px;height:72px;border-radius:50%;border:4px solid #fff;background:rgba(255,255,255,.3);cursor:pointer;transition:all .15s;margin-top:16px}
+.capture-btn:active{transform:scale(.9);background:rgba(255,255,255,.6)}
+.capture-btn.captured{background:#10b981;border-color:#10b981}
+/* Analyzing */
+.analyzing{text-align:center;justify-content:center;gap:20px;flex:1;display:flex;flex-direction:column;align-items:center}
+.spinner{width:80px;height:80px;border:4px solid rgba(255,255,255,.2);border-top-color:#fff;border-radius:50%;animation:spin 1s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.analysis-steps{display:flex;flex-direction:column;gap:8px;text-align:left}
+.analysis-step{font-size:14px;opacity:.5;transition:opacity .3s}
+.analysis-step.active{opacity:1}
+.analysis-step.done{opacity:.7}
+.analysis-step.done::before{content:'✓ ';color:#10b981}
+/* Result */
+.result-screen{padding-top:40px;gap:20px;padding-bottom:40px}
+.result-card{background:#141414;border-radius:24px;padding:32px 24px;width:100%;max-width:380px;color:#fff;text-align:center;box-shadow:0 20px 60px rgba(0,0,0,.5);position:relative;overflow:hidden}
+.result-card::before{content:'';position:absolute;top:-2px;left:-2px;right:-2px;bottom:-2px;background:linear-gradient(135deg,#dc2626,#f59e0b,#dc2626);z-index:-1;border-radius:26px}
+.result-name{font-size:16px;color:#999;margin-bottom:4px}
+.result-badge{display:inline-block;background:linear-gradient(135deg,var(--red),var(--gold));color:#fff;padding:6px 16px;border-radius:20px;font-size:13px;font-weight:700;margin-bottom:16px}
+.result-object-emoji{font-size:72px;line-height:1;margin:8px 0}
+.result-size{font-size:64px;font-weight:900;background:linear-gradient(135deg,#dc2626,#f59e0b);-webkit-background-clip:text;-webkit-text-fill-color:transparent;line-height:1}
+.result-unit{font-size:20px;font-weight:700;-webkit-text-fill-color:#888}
+.result-object-name{font-size:20px;font-weight:700;color:#fff;margin-top:8px}
+.result-object-desc{font-size:14px;color:#aaa;margin-top:2px}
+.result-percentile{margin:20px 0;padding:16px;background:rgba(255,255,255,.06);border-radius:16px}
+.percentile-text{font-size:14px;color:#999;margin-bottom:8px}
+.percentile-value{font-size:28px;font-weight:900;color:#dc2626}
+.percentile-bar{height:8px;background:rgba(255,255,255,.1);border-radius:4px;margin-top:8px;overflow:hidden}
+.percentile-bar-fill{height:100%;background:linear-gradient(90deg,#f59e0b,#dc2626);border-radius:4px;transition:width 1.5s ease}
+.result-factors{display:flex;gap:8px;margin-top:16px}
+.factor{flex:1;background:rgba(255,255,255,.06);border-radius:12px;padding:10px 6px;text-align:center}
+.factor-emoji{font-size:20px}
+.factor-label{font-size:10px;color:#777;margin-top:2px}
+.factor-value{font-size:13px;font-weight:700;color:#eee;margin-top:2px}
+.factor-value.positive{color:#f59e0b}
+.factor-value.negative{color:#ef4444}
+.result-disclaimer{font-size:10px;color:#555;margin-top:12px}
+.result-watermark{font-size:11px;color:#444;margin-top:8px;letter-spacing:1px}
+/* Group Ranking */
+.ranking-section{width:100%;max-width:380px;background:rgba(220,38,38,.08);border:1px solid rgba(220,38,38,.2);backdrop-filter:blur(10px);border-radius:20px;padding:20px;margin-top:4px}
+.ranking-title{font-size:18px;font-weight:800;margin-bottom:12px;text-align:center}
+.ranking-list{display:flex;flex-direction:column;gap:8px}
+.ranking-item{display:flex;align-items:center;gap:12px;padding:10px 14px;background:rgba(255,255,255,.04);border-radius:12px}
+.ranking-item.me{background:rgba(220,38,38,.12);border:2px solid rgba(220,38,38,.35)}
+.ranking-pos{font-size:18px;font-weight:900;width:28px;text-align:center}
+.ranking-pos.gold{color:#fbbf24}
+.ranking-pos.silver{color:#d1d5db}
+.ranking-pos.bronze{color:#d97706}
+.ranking-name{flex:1;font-weight:600}
+.ranking-size{font-weight:800;font-size:17px}
+/* Share buttons */
+.share-buttons{width:100%;max-width:380px;display:flex;flex-direction:column;gap:10px}
+/* Age gate */
+.age-gate{justify-content:center;text-align:center;gap:24px}
+.age-gate h2{font-size:32px;font-weight:800}
+.age-buttons{display:flex;gap:12px;width:100%;max-width:300px}
+.age-buttons .btn{flex:1}
+/* Back button */
+.back-btn{position:absolute;top:20px;left:20px;background:none;border:none;color:#fff;font-size:24px;cursor:pointer;padding:8px;opacity:.7;z-index:10}
+/* Loading */
+.model-loading{text-align:center;display:flex;flex-direction:column;align-items:center;gap:16px;padding:40px}
+.model-loading p{font-size:14px;opacity:.7}
+/* Animations */
+@keyframes fadeInUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+@keyframes countUp{from{opacity:0;transform:scale(.5)}to{opacity:1;transform:scale(1)}}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.5}}
+.fade-in{animation:fadeInUp .5s ease both}
+.fade-in-d1{animation-delay:.1s}
+.fade-in-d2{animation-delay:.2s}
+.fade-in-d3{animation-delay:.3s}
+.fade-in-d4{animation-delay:.4s}
+.count-up{animation:countUp .6s cubic-bezier(.34,1.56,.64,1) both}
+/* Scanning effect */
+.camera-wrap.frozen video{opacity:0}
+.camera-wrap.frozen .face-guide,.camera-wrap.frozen .hand-guide{display:none}
+.frozen-frame{position:absolute;top:0;left:0;width:100%;height:100%;object-fit:cover;z-index:2;transform:scaleX(-1)}
+.scan-line{position:absolute;left:0;width:100%;height:3px;background:linear-gradient(90deg,transparent 0%,#00ff88 20%,#00ffcc 50%,#00ff88 80%,transparent 100%);box-shadow:0 0 20px #00ff88,0 0 60px rgba(0,255,136,.3);z-index:6;pointer-events:none}
+.scan-line.animating{animation:scanDown 1.8s ease-in-out forwards}
+@keyframes scanDown{0%{top:0;opacity:0}5%{opacity:1}95%{opacity:1}100%{top:97%;opacity:0}}
+.scan-grid{position:absolute;inset:0;z-index:5;pointer-events:none;opacity:0;transition:opacity .3s;background:repeating-linear-gradient(0deg,transparent,transparent 30px,rgba(0,255,136,.06) 30px,rgba(0,255,136,.06) 31px),repeating-linear-gradient(90deg,transparent,transparent 30px,rgba(0,255,136,.06) 30px,rgba(0,255,136,.06) 31px)}
+.scan-grid.visible{opacity:1}
+.landmark-dot{position:absolute;width:7px;height:7px;background:#00ff88;border-radius:50%;box-shadow:0 0 10px #00ff88,0 0 20px rgba(0,255,136,.4);z-index:7;pointer-events:none;transform:scale(0);transition:transform .2s cubic-bezier(.34,1.56,.64,1)}
+.landmark-dot.visible{transform:scale(1)}
+.landmark-line{position:absolute;height:2px;background:rgba(0,255,136,.4);z-index:7;pointer-events:none;transform-origin:left center;opacity:0;transition:opacity .3s}
+.landmark-line.visible{opacity:1}
+.scan-label{position:absolute;z-index:8;background:rgba(0,0,0,.6);color:#00ff88;font-size:11px;font-weight:700;padding:3px 8px;border-radius:6px;pointer-events:none;white-space:nowrap;opacity:0;transition:opacity .3s}
+.scan-label.visible{opacity:1}
+.retry-wrap{display:flex;gap:10px;margin-top:12px;align-items:center}
+.retry-btn{padding:14px 28px;background:rgba(255,255,255,.2);border:2px solid rgba(255,255,255,.6);border-radius:14px;color:#fff;font-size:15px;font-weight:700;cursor:pointer;font-family:inherit;backdrop-filter:blur(10px);transition:all .2s}
+.retry-btn:active{transform:scale(.95);background:rgba(255,255,255,.3)}
+.camera-actions{display:flex;align-items:center;gap:16px;margin-top:16px}
+.upload-btn{background:none;border:none;color:#fff;font-size:14px;font-weight:600;cursor:pointer;opacity:.7;font-family:inherit;padding:8px 0;transition:opacity .2s}
+.upload-btn:active{opacity:1}
+</style>
+</head>
+<body>
+<div id="app">
+
+<!-- Screen: Age Gate -->
+<section class="screen active age-gate" id="s-age">
+  <div style="font-size:64px">🔞</div>
+  <h2>만 18세 이상입니까?</h2>
+  <p style="opacity:.7;font-size:15px">본 서비스는 성인 전용 엔터테인먼트입니다</p>
+  <div class="age-buttons">
+    <button class="btn btn-primary" onclick="App.confirmAge()">네</button>
+    <button class="btn btn-secondary" onclick="App.denyAge()">아니오</button>
+  </div>
+</section>
+
+<!-- Screen: Landing -->
+<section class="screen landing" id="s-landing">
+  <div class="logo">AI SIZE PREDICTOR</div>
+  <div>
+    <h1 class="hero-title">GUESS MY<span>DICK</span></h1>
+  </div>
+  <p class="hero-sub">AI가 당신의 얼굴과 손을 분석해<br>사이즈를 과학적으로 예측합니다</p>
+  <div class="hero-tags">
+    <span class="tag">👃 코 AI분석</span>
+    <span class="tag">✋ 손가락 비율</span>
+    <span class="tag">📊 논문 기반</span>
+  </div>
+  <div id="group-invite" class="group-invite" style="display:none">
+    <h3>🔥 친구들이 도전장을 보냈습니다!</h3>
+    <div class="ranking-preview" id="invite-preview"></div>
+  </div>
+  <button class="btn btn-primary" onclick="App.start()" style="font-size:20px">
+    측정 시작하기
+  </button>
+  <p style="font-size:12px;opacity:.5">무료 · 사진은 서버에 저장되지 않습니다</p>
+</section>
+
+<!-- Screen: Basic Info -->
+<section class="screen step-screen" id="s-info" style="position:relative">
+  <button class="back-btn" onclick="App.goBack()">←</button>
+  <div class="progress-bar"><div class="progress-fill" style="width:25%"></div></div>
+  <div class="step-header">
+    <div class="step-num">STEP 1 OF 4</div>
+    <h2 class="step-title">기본 정보</h2>
+    <p class="step-desc">정확한 예측을 위해 입력해주세요</p>
+  </div>
+  <div class="form-group">
+    <div class="input-wrap">
+      <label>이름 (닉네임)</label>
+      <input id="inp-name" placeholder="결과에 표시될 이름" maxlength="10">
+    </div>
+    <div class="input-wrap">
+      <label>국가</label>
+      <select id="inp-country"></select>
+    </div>
+    <div class="row">
+      <div class="input-wrap">
+        <label>키 (cm)</label>
+        <input id="inp-height" type="number" placeholder="170" min="130" max="220">
+      </div>
+      <div class="input-wrap">
+        <label>몸무게 (kg)</label>
+        <input id="inp-weight" type="number" placeholder="70" min="30" max="200">
+      </div>
+    </div>
+  </div>
+  <button class="btn btn-primary" onclick="App.submitInfo()">다음</button>
+</section>
+
+<!-- Screen: Face Camera -->
+<section class="screen step-screen" id="s-face" style="position:relative">
+  <button class="back-btn" onclick="App.goBack()">←</button>
+  <div class="progress-bar"><div class="progress-fill" style="width:50%"></div></div>
+  <div class="step-header">
+    <div class="step-num">STEP 2 OF 4</div>
+    <h2 class="step-title">얼굴 촬영</h2>
+  </div>
+  <div class="camera-wrap">
+    <video id="face-video" autoplay playsinline muted></video>
+    <canvas id="face-overlay"></canvas>
+    <div class="face-guide"></div>
+    <div class="camera-status" id="face-status">카메라 로딩 중...</div>
+  </div>
+  <div class="camera-actions">
+    <button class="capture-btn" id="face-capture-btn" onclick="App.captureFace()"></button>
+  </div>
+  <button class="upload-btn" onclick="document.getElementById('face-upload').click()">📁 앨범에서 선택</button>
+  <input type="file" id="face-upload" accept="image/*" style="display:none" onchange="App.uploadFace(event)">
+  <p style="font-size:12px;opacity:.5;margin-top:4px">사진은 기기에서만 처리됩니다</p>
+</section>
+
+<!-- Screen: Hand Camera -->
+<section class="screen step-screen" id="s-hand" style="position:relative">
+  <button class="back-btn" onclick="App.goBack()">←</button>
+  <div class="progress-bar"><div class="progress-fill" style="width:75%"></div></div>
+  <div class="step-header">
+    <div class="step-num">STEP 3 OF 4</div>
+    <h2 class="step-title">손 촬영</h2>
+    <p class="step-desc">손바닥을 펴고 손가락을 벌려주세요</p>
+  </div>
+  <div class="camera-wrap">
+    <video id="hand-video" autoplay playsinline muted></video>
+    <canvas id="hand-overlay"></canvas>
+    <div class="hand-guide">🤚</div>
+    <div class="camera-status" id="hand-status">카메라 로딩 중...</div>
+  </div>
+  <div class="camera-actions">
+    <button class="capture-btn" id="hand-capture-btn" onclick="App.captureHand()"></button>
+  </div>
+  <button class="upload-btn" onclick="document.getElementById('hand-upload').click()">📁 앨범에서 선택</button>
+  <input type="file" id="hand-upload" accept="image/*" style="display:none" onchange="App.uploadHand(event)">
+</section>
+
+<!-- Screen: Analyzing -->
+<section class="screen step-screen" id="s-analyzing">
+  <div class="progress-bar"><div class="progress-fill" style="width:100%"></div></div>
+  <div class="analyzing">
+    <div class="spinner"></div>
+    <h2 style="font-size:24px;font-weight:800">AI 분석 중</h2>
+    <div class="analysis-steps" id="analysis-steps">
+      <div class="analysis-step" data-step="0">얼굴 특징 추출 중...</div>
+      <div class="analysis-step" data-step="1">코 비율 측정 중...</div>
+      <div class="analysis-step" data-step="2">손가락 비율 계산 중...</div>
+      <div class="analysis-step" data-step="3">신체 데이터 종합 중...</div>
+      <div class="analysis-step" data-step="4">AI 예측 모델 적용 중...</div>
+    </div>
+  </div>
+</section>
+
+<!-- Screen: Result -->
+<section class="screen result-screen" id="s-result">
+  <div class="result-card fade-in" id="result-card">
+    <div class="result-name" id="r-name"></div>
+    <div class="result-badge" id="r-badge"></div>
+    <div class="result-object-emoji fade-in fade-in-d1" id="r-emoji"></div>
+    <div class="count-up" style="animation-delay:.3s">
+      <span class="result-size" id="r-size"></span>
+      <span class="result-unit">cm</span>
+    </div>
+    <div class="result-object-name fade-in fade-in-d2" id="r-obj-name"></div>
+    <div class="result-object-desc fade-in fade-in-d2" id="r-obj-desc"></div>
+    <div class="result-percentile fade-in fade-in-d3">
+      <div class="percentile-text">전 세계 남성 기준</div>
+      <div class="percentile-value" id="r-percentile"></div>
+      <div class="percentile-bar"><div class="percentile-bar-fill" id="r-pbar"></div></div>
+    </div>
+    <div class="result-factors fade-in fade-in-d4" id="r-factors"></div>
+    <div class="result-disclaimer">* 발기 시 기준 예측 · 엔터테인먼트 목적</div>
+    <div class="result-watermark">GUESS MY DICK</div>
+  </div>
+  <div class="ranking-section fade-in fade-in-d3" id="ranking-section">
+    <div class="ranking-title">🏆 그룹 랭킹</div>
+    <div class="ranking-list" id="ranking-list"></div>
+  </div>
+  <div class="share-buttons fade-in fade-in-d4">
+    <button class="btn btn-primary" onclick="App.shareChallenge()">🔗 친구에게 도전장 보내기</button>
+    <button class="btn btn-secondary" onclick="App.shareImage()">📸 결과 이미지 저장</button>
+    <button class="btn btn-secondary btn-small" onclick="App.restart()">🔄 다시 측정하기</button>
+  </div>
+</section>
+
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/face-api.js@0.22.2/dist/face-api.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+<script>
+// ============ CONSTANTS ============
+const FACE_MODEL_URL = 'https://cdn.jsdelivr.net/gh/justadudewhohacks/face-api.js@master/weights';
+
+const COUNTRIES = {
+  KR:{name:'한국',avg:13.0,h:173.5},JP:{name:'일본',avg:13.0,h:171.0},
+  CN:{name:'중국',avg:13.1,h:171.8},US:{name:'미국',avg:13.6,h:177.1},
+  GB:{name:'영국',avg:13.7,h:177.5},DE:{name:'독일',avg:14.5,h:180.0},
+  FR:{name:'프랑스',avg:16.0,h:178.6},BR:{name:'브라질',avg:16.1,h:173.6},
+  TH:{name:'태국',avg:9.4,h:170.3},IN:{name:'인도',avg:13.0,h:166.5},
+  PH:{name:'필리핀',avg:10.9,h:163.5},VN:{name:'베트남',avg:10.2,h:168.1},
+  AU:{name:'호주',avg:13.3,h:178.4},CA:{name:'캐나다',avg:13.9,h:177.0},
+  IT:{name:'이탈리아',avg:15.7,h:177.8},ES:{name:'스페인',avg:14.0,h:176.6},
+  MX:{name:'멕시코',avg:14.9,h:170.0},RU:{name:'러시아',avg:13.2,h:176.6},
+  ID:{name:'인도네시아',avg:12.0,h:166.0},TW:{name:'대만',avg:13.0,h:171.5},
+  NG:{name:'나이지리아',avg:15.6,h:167.0},EG:{name:'이집트',avg:14.9,h:170.3},
+  CO:{name:'콜롬비아',avg:17.0,h:170.6},EC:{name:'에콰도르',avg:17.6,h:167.1},
+  SE:{name:'스웨덴',avg:14.9,h:180.0},NL:{name:'네덜란드',avg:15.9,h:182.5}
+};
+
+const OBJECTS = [
+  {min:0,max:8.5,emoji:'💄',name:'립스틱',desc:'컴팩트하지만 강렬한 존재감'},
+  {min:8.5,max:10,emoji:'🎧',name:'에어팟 케이스',desc:'주머니에 쏙 들어가는 핏'},
+  {min:10,max:11.5,emoji:'📱',name:'아이폰 미니',desc:'한 손에 딱 맞는 그립감'},
+  {min:11.5,max:12.5,emoji:'🍺',name:'맥주캔',desc:'시원하게 원샷 하는 사이즈'},
+  {min:12.5,max:13.5,emoji:'🍌',name:'바나나',desc:'자연이 만든 완벽한 황금비율'},
+  {min:13.5,max:15,emoji:'☕',name:'스타벅스 톨컵',desc:'여유롭게 즐기는 넉넉한 사이즈'},
+  {min:15,max:16.5,emoji:'🧴',name:'500ml 텀블러',desc:'들고 다니기 자랑스러운'},
+  {min:16.5,max:18,emoji:'🥖',name:'바게트빵',desc:'프랑스가 인정한 명품 사이즈'},
+  {min:18,max:20,emoji:'🍾',name:'와인병',desc:'특별한 날 꺼내는 프리미엄'},
+  {min:20,max:22,emoji:'📏',name:'30cm 자',desc:'교과서에 실릴 전설급'},
+  {min:22,max:99,emoji:'🏏',name:'야구배트',desc:'리그 MVP 급 초월적'}
+];
+
+const COMMENTS = [
+  {min:95,text:'전설이 걸어다닌다... 👑'},
+  {min:85,text:'자신감 MAX! 당당하게 사세요 🔥'},
+  {min:70,text:'평균 이상의 축복받은 스펙 ✨'},
+  {min:40,text:'딱 좋은 황금 사이즈! 👌'},
+  {min:20,text:'테크닉으로 승부하는 진짜 고수 😎'},
+  {min:0,text:'포켓 사이즈 매력 폭발 💎'}
+];
+
+// ============ STATE ============
+const state = {
+  name:'', country:'KR', height:170, weight:70,
+  noseRatio:null, fingerRatio:null,
+  result:null, percentile:null,
+  group:[], faceDetected:false, handDetected:false,
+  cameraStream:null, modelsLoaded:false, handsModel:null
+};
+
+// ============ UTILITIES ============
+function dist(a, b) {
+  return Math.sqrt((a.x-b.x)**2 + (a.y-b.y)**2);
+}
+
+function normalCDF(z) {
+  const a1=0.254829592,a2=-0.284496736,a3=1.421413741,a4=-1.453152027,a5=1.061405429,p=0.3275911;
+  const sign = z < 0 ? -1 : 1;
+  z = Math.abs(z) / Math.sqrt(2);
+  const t = 1 / (1 + p * z);
+  const y = 1 - (((((a5*t+a4)*t)+a3)*t+a2)*t+a1)*t*Math.exp(-z*z);
+  return 0.5 * (1 + sign * y);
+}
+
+function getPercentile(size) {
+  const z = (size - 13.44) / 1.8;
+  return Math.round(normalCDF(z) * 100);
+}
+
+function getObject(size) {
+  return OBJECTS.find(o => size >= o.min && size < o.max) || OBJECTS[OBJECTS.length - 1];
+}
+
+function getComment(pct) {
+  return COMMENTS.find(c => pct >= c.min)?.text || '';
+}
+
+// ============ GROUP ENCODING ============
+function encodeGroup(members) {
+  try {
+    const data = members.map(m => `${m.name}|${m.size}`).join(',');
+    return btoa(unescape(encodeURIComponent(data)));
+  } catch { return ''; }
+}
+
+function decodeGroup(encoded) {
+  try {
+    const data = decodeURIComponent(escape(atob(encoded)));
+    return data.split(',').filter(Boolean).map(e => {
+      const [name, size] = e.split('|');
+      return { name, size: parseFloat(size) };
+    });
+  } catch { return []; }
+}
+
+// ============ CAMERA ============
+async function startCamera(videoEl) {
+  try {
+    const stream = await navigator.mediaDevices.getUserMedia({
+      video: { facingMode:'user', width:{ideal:640}, height:{ideal:480} }
+    });
+    videoEl.srcObject = stream;
+    state.cameraStream = stream;
+    await videoEl.play();
+    return true;
+  } catch (e) {
+    console.error('Camera error:', e);
+    return false;
+  }
+}
+
+function stopCamera() {
+  if (state.cameraStream) {
+    state.cameraStream.getTracks().forEach(t => t.stop());
+    state.cameraStream = null;
+  }
+}
+
+function captureFrame(videoEl) {
+  const c = document.createElement('canvas');
+  const w = videoEl.videoWidth || videoEl.width || 640;
+  const h = videoEl.videoHeight || videoEl.height || 480;
+  c.width = w;
+  c.height = h;
+  c.getContext('2d').drawImage(videoEl, 0, 0, w, h);
+  return c;
+}
+
+// Wait for video to have actual frames
+function waitForVideo(videoEl, maxWait = 3000) {
+  return new Promise((resolve) => {
+    if (videoEl.videoWidth > 0 && videoEl.videoHeight > 0) { resolve(true); return; }
+    const start = Date.now();
+    const check = () => {
+      if (videoEl.videoWidth > 0 && videoEl.videoHeight > 0) { resolve(true); return; }
+      if (Date.now() - start > maxWait) { resolve(false); return; }
+      requestAnimationFrame(check);
+    };
+    check();
+  });
+}
+
+// ============ FACE ANALYSIS ============
+async function loadFaceModels() {
+  if (state.modelsLoaded) return;
+
+  // Always load landmarks
+  await faceapi.nets.faceLandmark68Net.loadFromUri(FACE_MODEL_URL);
+
+  // Try SSD first (better accuracy), fallback to Tiny
+  try {
+    await faceapi.nets.ssdMobilenetv1.loadFromUri(FACE_MODEL_URL);
+    state.hasSSD = true;
+    console.log('SSD model loaded');
+  } catch (e) {
+    console.warn('SSD model unavailable, using TinyFaceDetector:', e.message);
+    state.hasSSD = false;
+  }
+
+  await faceapi.nets.tinyFaceDetector.loadFromUri(FACE_MODEL_URL);
+  console.log('TinyFaceDetector loaded');
+
+  state.modelsLoaded = true;
+}
+
+async function analyzeFace(canvas) {
+  if (canvas.width < 10 || canvas.height < 10) {
+    console.error('Canvas too small:', canvas.width, canvas.height);
+    return null;
+  }
+
+  let detection = null;
+
+  // Try SsdMobilenetv1 first (more accurate)
+  try {
+    detection = await faceapi.detectSingleFace(canvas, new faceapi.SsdMobilenetv1Options({ minConfidence: 0.3 }))
+      .withFaceLandmarks();
+    if (detection) console.log('Face detected with SSD');
+  } catch (e) {
+    console.warn('SSD detector failed:', e);
+  }
+
+  // Fallback to TinyFaceDetector
+  if (!detection) {
+    try {
+      detection = await faceapi.detectSingleFace(canvas, new faceapi.TinyFaceDetectorOptions({ inputSize: 416, scoreThreshold: 0.2 }))
+        .withFaceLandmarks();
+      if (detection) console.log('Face detected with Tiny');
+    } catch (e) {
+      console.warn('Tiny detector failed:', e);
+    }
+  }
+
+  // Try with different input sizes
+  if (!detection) {
+    for (const size of [320, 512]) {
+      try {
+        detection = await faceapi.detectSingleFace(canvas, new faceapi.TinyFaceDetectorOptions({ inputSize: size, scoreThreshold: 0.15 }))
+          .withFaceLandmarks();
+        if (detection) { console.log('Face detected with size', size); break; }
+      } catch (e) { /* skip */ }
+    }
+  }
+
+  if (!detection) return null;
+
+  const lm = detection.landmarks;
+  const nose = lm.getNose();
+  const jaw = lm.getJawOutline();
+
+  const noseLen = dist(nose[0], nose[6]);
+  const noseWid = dist(nose[4], nose[8]);
+  const faceH = dist(jaw[8], nose[0]);
+
+  return {
+    noseRatio: noseLen / faceH,
+    noseWidth: noseWid / faceH,
+    faceHeight: faceH
+  };
+}
+
+// ============ HAND ANALYSIS ============
+// Using MediaPipe Hands via dynamic loading
+async function loadHandModel() {
+  if (state.handsModel) return;
+  await new Promise((resolve, reject) => {
+    const s = document.createElement('script');
+    s.src = 'https://cdn.jsdelivr.net/npm/@mediapipe/hands/hands.js';
+    s.crossOrigin = 'anonymous';
+    s.onload = resolve;
+    s.onerror = reject;
+    document.head.appendChild(s);
+  });
+
+  return new Promise((resolve) => {
+    const hands = new Hands({
+      locateFile: f => `https://cdn.jsdelivr.net/npm/@mediapipe/hands/${f}`
+    });
+    hands.setOptions({ maxNumHands:1, modelComplexity:1, minDetectionConfidence:0.5, minTrackingConfidence:0.5 });
+    state.handsModel = hands;
+    // Initialize by sending a tiny canvas
+    const c = document.createElement('canvas');
+    c.width = 10; c.height = 10;
+    hands.onResults(() => { resolve(); });
+    hands.send({ image: c });
+  });
+}
+
+function analyzeHand(canvas) {
+  return new Promise((resolve) => {
+    if (!state.handsModel) { resolve(null); return; }
+    state.handsModel.onResults((results) => {
+      if (!results.multiHandLandmarks || results.multiHandLandmarks.length === 0) {
+        resolve(null); return;
+      }
+      const lm = results.multiHandLandmarks[0];
+      // Index finger: MCP(5) → PIP(6) → DIP(7) → TIP(8)
+      const indexLen = dist3(lm[5],lm[6]) + dist3(lm[6],lm[7]) + dist3(lm[7],lm[8]);
+      // Ring finger: MCP(13) → PIP(14) → DIP(15) → TIP(16)
+      const ringLen = dist3(lm[13],lm[14]) + dist3(lm[14],lm[15]) + dist3(lm[15],lm[16]);
+      resolve({ ratio: indexLen / ringLen }); // 2D:4D ratio
+    });
+    state.handsModel.send({ image: canvas });
+  });
+}
+
+function dist3(a, b) {
+  return Math.sqrt((a.x-b.x)**2 + (a.y-b.y)**2 + ((a.z||0)-(b.z||0))**2);
+}
+
+// ============ CALCULATION ============
+function calculateResult() {
+  const c = COUNTRIES[state.country] || COUNTRIES.KR;
+  let predicted = c.avg;
+
+  const factors = [];
+
+  // 1. Nose factor (weight: 40%, r=0.507)
+  if (state.noseRatio !== null) {
+    const avgNoseRatio = 0.31;
+    const dev = (state.noseRatio - avgNoseRatio) / 0.03;
+    const adj = dev * 1.0;
+    predicted += adj;
+    factors.push({ emoji:'👃', label:'코 비율', value: adj });
+  }
+
+  // 2. Finger factor (weight: 20%, r=0.216)
+  if (state.fingerRatio !== null) {
+    const avgRatio = 0.955;
+    const dev = (avgRatio - state.fingerRatio) / 0.025; // lower = bigger
+    const adj = dev * 0.5;
+    predicted += adj;
+    factors.push({ emoji:'✋', label:'손가락', value: adj });
+  }
+
+  // 3. Height factor (weight: 25%)
+  const heightDev = (state.height - c.h) / 7;
+  const heightAdj = heightDev * 0.5;
+  predicted += heightAdj;
+  factors.push({ emoji:'📏', label:'신체', value: heightAdj });
+
+  // 4. BMI factor (weight: 10%)
+  const bmi = state.weight / ((state.height / 100) ** 2);
+  const bmiAdj = ((23 - bmi) / 4) * 0.3;
+  predicted += bmiAdj;
+
+  // 5. Slight positive bias for shareability
+  predicted += (Math.random() * 0.6 - 0.1);
+
+  // Clamp
+  predicted = Math.max(7.5, Math.min(23, predicted));
+  predicted = Math.round(predicted * 10) / 10;
+
+  const pct = getPercentile(predicted);
+
+  state.result = predicted;
+  state.percentile = pct;
+
+  return { size: predicted, percentile: pct, factors };
+}
+
+// ============ UI NAVIGATION ============
+const SCREENS = ['s-age','s-landing','s-info','s-face','s-hand','s-analyzing','s-result'];
+let currentScreen = 0;
+
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  currentScreen = SCREENS.indexOf(id);
+  window.scrollTo(0, 0);
+}
+
+// ============ APP ============
+const App = {
+  confirmAge() { showScreen('s-landing'); },
+  denyAge() { alert('만 18세 이상만 이용 가능합니다.'); },
+
+  start() {
+    showScreen('s-info');
+    // Preload face models in background
+    loadFaceModels().catch(console.error);
+  },
+
+  goBack() {
+    stopCamera();
+    const prev = SCREENS[currentScreen - 1];
+    if (prev && prev !== 's-age') showScreen(prev);
+  },
+
+  submitInfo() {
+    const name = document.getElementById('inp-name').value.trim();
+    const country = document.getElementById('inp-country').value;
+    const height = parseInt(document.getElementById('inp-height').value);
+    const weight = parseInt(document.getElementById('inp-weight').value);
+
+    if (!name) { alert('이름을 입력해주세요'); return; }
+    if (!height || height < 130 || height > 220) { alert('키를 정확히 입력해주세요 (130-220cm)'); return; }
+    if (!weight || weight < 30 || weight > 200) { alert('몸무게를 정확히 입력해주세요 (30-200kg)'); return; }
+
+    Object.assign(state, { name, country, height, weight });
+    showScreen('s-face');
+    this.startFaceCamera();
+  },
+
+  async startFaceCamera() {
+    const video = document.getElementById('face-video');
+    const status = document.getElementById('face-status');
+    const ok = await startCamera(video);
+    status.textContent = ok ? '얼굴을 가이드 안에 맞춰주세요' : '카메라 접근이 필요합니다';
+    status.className = 'camera-status' + (ok ? '' : ' error');
+  },
+
+  async captureFace() {
+    const video = document.getElementById('face-video');
+    const wrap = video.closest('.camera-wrap');
+    const overlay = document.getElementById('face-overlay');
+    const status = document.getElementById('face-status');
+    const btn = document.getElementById('face-capture-btn');
+
+    // 1. Wait for video ready
+    status.textContent = '준비 중...';
+    status.className = 'camera-status';
+    const videoReady = await waitForVideo(video);
+    if (!videoReady) {
+      status.textContent = '카메라가 준비되지 않았습니다. 다시 시도해주세요';
+      status.className = 'camera-status error';
+      return;
+    }
+
+    // 2. Freeze frame
+    const canvas = captureFrame(video);
+    console.log('Captured frame:', canvas.width, 'x', canvas.height);
+    overlay.width = canvas.width;
+    overlay.height = canvas.height;
+    overlay.getContext('2d').drawImage(canvas, 0, 0);
+    overlay.classList.add('frozen-frame');
+    wrap.classList.add('frozen');
+    btn.style.display = 'none';
+    status.textContent = '스캔 중...';
+    status.className = 'camera-status';
+
+    // 3. Scan animation
+    this._clearScanEffects(wrap);
+    const grid = document.createElement('div');
+    grid.className = 'scan-grid';
+    wrap.appendChild(grid);
+    setTimeout(() => grid.classList.add('visible'), 50);
+    const line = document.createElement('div');
+    line.className = 'scan-line';
+    wrap.appendChild(line);
+    setTimeout(() => line.classList.add('animating'), 50);
+
+    // 4. Analyze
+    try {
+      status.textContent = '모델 로딩 중...';
+      await loadFaceModels();
+      status.textContent = '얼굴 분석 중...';
+      const result = await analyzeFace(canvas);
+
+      if (result) {
+        state.noseRatio = result.noseRatio;
+        state.faceDetected = true;
+
+        // Draw landmarks on overlay
+        await this._drawFaceLandmarks(canvas, overlay, wrap);
+
+        status.textContent = '✓ 얼굴 분석 완료!';
+        status.className = 'camera-status success';
+        btn.classList.add('captured');
+
+        setTimeout(() => {
+          this._clearScanEffects(wrap);
+          stopCamera();
+          wrap.classList.remove('frozen');
+          overlay.classList.remove('frozen-frame');
+          btn.style.display = '';
+          showScreen('s-hand');
+          this.startHandCamera();
+        }, 2200);
+      } else {
+        this._showRetry(wrap, btn, status, 'face', '얼굴이 감지되지 않았습니다');
+      }
+    } catch (e) {
+      console.error('Face analysis error:', e);
+      const errDetail = (e.message || e.toString()).substring(0, 80);
+      const msg = e.message?.includes('load') || e.message?.includes('fetch')
+        ? '모델 로딩 실패 - 인터넷 확인 또는 새로고침'
+        : '분석 오류 [' + errDetail + ']';
+      this._showRetry(wrap, btn, status, 'face', msg);
+    }
+  },
+
+  async _drawFaceLandmarks(canvas, overlay, wrap) {
+    const detection = await faceapi.detectSingleFace(canvas, new faceapi.TinyFaceDetectorOptions({ inputSize: 416, scoreThreshold: 0.3 }))
+      .withFaceLandmarks();
+    if (!detection) return;
+
+    const lm = detection.landmarks;
+    const nose = lm.getNose();
+    const jaw = lm.getJawOutline();
+    const scaleX = wrap.clientWidth / canvas.width;
+    const scaleY = wrap.clientHeight / canvas.height;
+
+    // Nose points
+    const nosePoints = nose.map(p => ({
+      x: (canvas.width - p.x) * scaleX,  // mirror
+      y: p.y * scaleY
+    }));
+
+    // Draw dots with staggered delay
+    nosePoints.forEach((p, i) => {
+      const dot = document.createElement('div');
+      dot.className = 'landmark-dot';
+      dot.style.left = (p.x - 3) + 'px';
+      dot.style.top = (p.y - 3) + 'px';
+      wrap.appendChild(dot);
+      setTimeout(() => dot.classList.add('visible'), 800 + i * 80);
+    });
+
+    // Nose length label
+    const noseTop = nosePoints[0];
+    const noseBot = nosePoints[6];
+    const label = document.createElement('div');
+    label.className = 'scan-label';
+    label.textContent = `코 길이: ${((state.noseRatio || 0) * 100).toFixed(1)}%`;
+    label.style.left = (noseTop.x + 20) + 'px';
+    label.style.top = ((noseTop.y + noseBot.y) / 2) + 'px';
+    wrap.appendChild(label);
+    setTimeout(() => label.classList.add('visible'), 1400);
+
+    // Jaw outline dots (sparse)
+    jaw.filter((_, i) => i % 2 === 0).forEach((p, i) => {
+      const dot = document.createElement('div');
+      dot.className = 'landmark-dot';
+      dot.style.left = ((canvas.width - p.x) * scaleX - 3) + 'px';
+      dot.style.top = (p.y * scaleY - 3) + 'px';
+      dot.style.background = 'rgba(0,255,136,.4)';
+      dot.style.boxShadow = '0 0 6px rgba(0,255,136,.3)';
+      wrap.appendChild(dot);
+      setTimeout(() => dot.classList.add('visible'), 1000 + i * 60);
+    });
+  },
+
+  _showRetry(wrap, btn, status, type, msg) {
+    this._clearScanEffects(wrap);
+    wrap.classList.remove('frozen');
+    const overlay = wrap.querySelector('canvas');
+    if (overlay) {
+      overlay.classList.remove('frozen-frame');
+      const ctx = overlay.getContext('2d');
+      ctx.clearRect(0, 0, overlay.width, overlay.height);
+    }
+    status.textContent = msg + ' 다시 촬영해주세요';
+    status.className = 'camera-status error';
+    btn.style.display = '';
+    btn.classList.remove('captured');
+    // Restart camera if stopped
+    const video = wrap.querySelector('video');
+    if (video && (!video.srcObject || !video.srcObject.active)) {
+      startCamera(video);
+    }
+  },
+
+  // ============ PHOTO UPLOAD ============
+  async uploadFace(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+    const canvas = await this._fileToCanvas(file);
+    if (!canvas) return;
+
+    const video = document.getElementById('face-video');
+    const wrap = video.closest('.camera-wrap');
+    const overlay = document.getElementById('face-overlay');
+    const status = document.getElementById('face-status');
+    const btn = document.getElementById('face-capture-btn');
+
+    // Show uploaded image as frozen frame
+    stopCamera();
+    overlay.width = canvas.width;
+    overlay.height = canvas.height;
+    overlay.getContext('2d').drawImage(canvas, 0, 0);
+    overlay.classList.add('frozen-frame');
+    wrap.classList.add('frozen');
+    btn.style.display = 'none';
+
+    // Scan animation
+    this._clearScanEffects(wrap);
+    const grid = document.createElement('div');
+    grid.className = 'scan-grid';
+    wrap.appendChild(grid);
+    setTimeout(() => grid.classList.add('visible'), 50);
+    const line = document.createElement('div');
+    line.className = 'scan-line';
+    wrap.appendChild(line);
+    setTimeout(() => line.classList.add('animating'), 50);
+
+    status.textContent = '스캔 중...';
+    status.className = 'camera-status';
+
+    try {
+      await loadFaceModels();
+      const result = await analyzeFace(canvas);
+      if (result) {
+        state.noseRatio = result.noseRatio;
+        state.faceDetected = true;
+        await this._drawFaceLandmarks(canvas, overlay, wrap);
+        status.textContent = '✓ 얼굴 분석 완료!';
+        status.className = 'camera-status success';
+        btn.classList.add('captured');
+        setTimeout(() => {
+          this._clearScanEffects(wrap);
+          wrap.classList.remove('frozen');
+          overlay.classList.remove('frozen-frame');
+          btn.style.display = '';
+          showScreen('s-hand');
+          this.startHandCamera();
+        }, 2200);
+      } else {
+        this._showRetry(wrap, btn, status, 'face', '얼굴이 감지되지 않았습니다.');
+      }
+    } catch (e) {
+      console.error(e);
+      this._showRetry(wrap, btn, status, 'face', '분석 오류.');
+    }
+    event.target.value = '';
+  },
+
+  async uploadHand(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+    const canvas = await this._fileToCanvas(file);
+    if (!canvas) return;
+
+    const video = document.getElementById('hand-video');
+    const wrap = video.closest('.camera-wrap');
+    const overlay = document.getElementById('hand-overlay');
+    const status = document.getElementById('hand-status');
+    const btn = document.getElementById('hand-capture-btn');
+
+    stopCamera();
+    overlay.width = canvas.width;
+    overlay.height = canvas.height;
+    overlay.getContext('2d').drawImage(canvas, 0, 0);
+    overlay.classList.add('frozen-frame');
+    wrap.classList.add('frozen');
+    btn.style.display = 'none';
+
+    this._clearScanEffects(wrap);
+    const grid = document.createElement('div');
+    grid.className = 'scan-grid';
+    wrap.appendChild(grid);
+    setTimeout(() => grid.classList.add('visible'), 50);
+    const line = document.createElement('div');
+    line.className = 'scan-line';
+    wrap.appendChild(line);
+    setTimeout(() => line.classList.add('animating'), 50);
+
+    status.textContent = '스캔 중...';
+    status.className = 'camera-status';
+
+    try {
+      await loadHandModel();
+      const result = await analyzeHand(canvas);
+      if (result) {
+        state.fingerRatio = result.ratio;
+        state.handDetected = true;
+        await this._drawHandLandmarks(canvas, wrap);
+        status.textContent = '✓ 손 분석 완료!';
+        status.className = 'camera-status success';
+        btn.classList.add('captured');
+        setTimeout(() => {
+          this._clearScanEffects(wrap);
+          wrap.classList.remove('frozen');
+          overlay.classList.remove('frozen-frame');
+          btn.style.display = '';
+          this.showAnalysis();
+        }, 2200);
+      } else {
+        this._showRetry(wrap, btn, status, 'hand', '손이 감지되지 않았습니다.');
+      }
+    } catch (e) {
+      console.error(e);
+      this._showRetry(wrap, btn, status, 'hand', '분석 오류.');
+    }
+    event.target.value = '';
+  },
+
+  _fileToCanvas(file) {
+    return new Promise((resolve) => {
+      const img = new Image();
+      img.onload = () => {
+        // Resize to max 640px for performance
+        const maxW = 640;
+        const scale = Math.min(1, maxW / img.width);
+        const c = document.createElement('canvas');
+        c.width = img.width * scale;
+        c.height = img.height * scale;
+        c.getContext('2d').drawImage(img, 0, 0, c.width, c.height);
+        URL.revokeObjectURL(img.src);
+        resolve(c);
+      };
+      img.onerror = () => resolve(null);
+      img.src = URL.createObjectURL(file);
+    });
+  },
+
+  _clearScanEffects(wrap) {
+    wrap.querySelectorAll('.scan-line,.scan-grid,.landmark-dot,.landmark-line,.scan-label').forEach(el => el.remove());
+  },
+
+  async startHandCamera() {
+    const video = document.getElementById('hand-video');
+    const status = document.getElementById('hand-status');
+    const ok = await startCamera(video);
+    status.textContent = ok ? '손바닥을 펴고 손가락을 벌려주세요' : '카메라 접근이 필요합니다';
+    status.className = 'camera-status' + (ok ? '' : ' error');
+    // Load hand model in background
+    loadHandModel().catch(console.error);
+  },
+
+  async captureHand() {
+    const video = document.getElementById('hand-video');
+    const wrap = video.closest('.camera-wrap');
+    const overlay = document.getElementById('hand-overlay');
+    const status = document.getElementById('hand-status');
+    const btn = document.getElementById('hand-capture-btn');
+
+    // 1. Freeze frame
+    const canvas = captureFrame(video);
+    overlay.width = canvas.width;
+    overlay.height = canvas.height;
+    overlay.getContext('2d').drawImage(canvas, 0, 0);
+    overlay.classList.add('frozen-frame');
+    wrap.classList.add('frozen');
+    btn.style.display = 'none';
+    status.textContent = '스캔 중...';
+    status.className = 'camera-status';
+
+    // 2. Scan animation
+    this._clearScanEffects(wrap);
+    const grid = document.createElement('div');
+    grid.className = 'scan-grid';
+    wrap.appendChild(grid);
+    setTimeout(() => grid.classList.add('visible'), 50);
+    const line = document.createElement('div');
+    line.className = 'scan-line';
+    wrap.appendChild(line);
+    setTimeout(() => line.classList.add('animating'), 50);
+
+    // 3. Analyze
+    try {
+      await loadHandModel();
+      const result = await analyzeHand(canvas);
+
+      if (result) {
+        state.fingerRatio = result.ratio;
+        state.handDetected = true;
+
+        // Draw hand landmarks
+        await this._drawHandLandmarks(canvas, wrap);
+
+        status.textContent = '✓ 손 분석 완료!';
+        status.className = 'camera-status success';
+        btn.classList.add('captured');
+
+        setTimeout(() => {
+          this._clearScanEffects(wrap);
+          stopCamera();
+          wrap.classList.remove('frozen');
+          overlay.classList.remove('frozen-frame');
+          btn.style.display = '';
+          this.showAnalysis();
+        }, 2200);
+      } else {
+        this._showRetry(wrap, btn, status, 'hand', '손이 감지되지 않았습니다');
+      }
+    } catch (e) {
+      console.error(e);
+      this._showRetry(wrap, btn, status, 'hand', '분석 오류 - 다시 시도해주세요');
+    }
+  },
+
+  async _drawHandLandmarks(canvas, wrap) {
+    const scaleX = wrap.clientWidth / canvas.width;
+    const scaleY = wrap.clientHeight / canvas.height;
+
+    // Use stored hand results - draw key finger points
+    // Index finger: 5,6,7,8  Ring finger: 13,14,15,16
+    const fingerPoints = [5,6,7,8,13,14,15,16,0,4,12,17,20];
+    fingerPoints.forEach((idx, i) => {
+      const dot = document.createElement('div');
+      dot.className = 'landmark-dot';
+      // Approximate positions based on hand structure
+      const angle = (idx / 21) * Math.PI * 0.8 - 0.2;
+      const radius = 0.15 + (idx % 4) * 0.08;
+      const cx = wrap.clientWidth * (0.55 - Math.sin(angle) * radius);
+      const cy = wrap.clientHeight * (0.45 + Math.cos(angle) * radius * 0.8);
+      dot.style.left = cx + 'px';
+      dot.style.top = cy + 'px';
+      wrap.appendChild(dot);
+      setTimeout(() => dot.classList.add('visible'), 800 + i * 60);
+    });
+
+    // Ratio label
+    if (state.fingerRatio) {
+      const label = document.createElement('div');
+      label.className = 'scan-label';
+      label.textContent = `2D:4D 비율: ${state.fingerRatio.toFixed(3)}`;
+      label.style.left = '16px';
+      label.style.bottom = '16px';
+      label.style.top = 'auto';
+      wrap.appendChild(label);
+      setTimeout(() => label.classList.add('visible'), 1400);
+    }
+  },
+
+  async showAnalysis() {
+    showScreen('s-analyzing');
+    const steps = document.querySelectorAll('.analysis-step');
+
+    for (let i = 0; i < steps.length; i++) {
+      steps[i].classList.add('active');
+      await new Promise(r => setTimeout(r, 700));
+      steps[i].classList.remove('active');
+      steps[i].classList.add('done');
+    }
+
+    await new Promise(r => setTimeout(r, 400));
+    this.showResult();
+  },
+
+  showResult() {
+    const { size, percentile, factors } = calculateResult();
+
+    // Add to group
+    const me = { name: state.name, size };
+    state.group = state.group.filter(m => m.name !== state.name);
+    state.group.push(me);
+    state.group.sort((a, b) => b.size - a.size);
+
+    const obj = getObject(size);
+    const comment = getComment(percentile);
+
+    // Fill result card
+    document.getElementById('r-name').textContent = state.name + '의 분석 결과';
+    document.getElementById('r-badge').textContent = comment;
+    document.getElementById('r-emoji').textContent = obj.emoji;
+    document.getElementById('r-size').textContent = size;
+    document.getElementById('r-obj-name').textContent = `"${obj.name}" 사이즈`;
+    document.getElementById('r-obj-desc').textContent = obj.desc;
+    document.getElementById('r-percentile').textContent = `상위 ${100 - percentile}%`;
+
+    setTimeout(() => {
+      document.getElementById('r-pbar').style.width = percentile + '%';
+    }, 300);
+
+    // Factors
+    const fEl = document.getElementById('r-factors');
+    fEl.innerHTML = factors.map(f => `
+      <div class="factor">
+        <div class="factor-emoji">${f.emoji}</div>
+        <div class="factor-label">${f.label}</div>
+        <div class="factor-value ${f.value >= 0 ? 'positive' : 'negative'}">
+          ${f.value >= 0 ? '+' : ''}${f.value.toFixed(1)}cm
+        </div>
+      </div>
+    `).join('');
+
+    // Ranking
+    this.renderRanking();
+
+    showScreen('s-result');
+  },
+
+  renderRanking() {
+    const list = document.getElementById('ranking-list');
+    const medals = ['gold', 'silver', 'bronze'];
+    const icons = ['👑', '🥈', '🥉'];
+
+    list.innerHTML = state.group.map((m, i) => `
+      <div class="ranking-item ${m.name === state.name ? 'me' : ''}">
+        <div class="ranking-pos ${medals[i] || ''}">${i < 3 ? icons[i] : (i+1)}</div>
+        <div class="ranking-name">${m.name} ${m.name === state.name ? '← 나' : ''}</div>
+        <div class="ranking-size">${m.size}cm</div>
+      </div>
+    `).join('');
+
+    document.getElementById('ranking-section').style.display =
+      state.group.length > 1 ? 'block' : 'none';
+  },
+
+  async shareChallenge() {
+    const encoded = encodeGroup(state.group);
+    const url = window.location.origin + window.location.pathname + '?g=' + encoded;
+    const text = `🍆 나는 상위 ${100 - state.percentile}%! 너는 몇 cm일까?\n내 사이즈: ${state.result}cm (${getObject(state.result).name} 사이즈)\n\n지금 측정해봐 👇`;
+
+    if (navigator.share) {
+      try {
+        await navigator.share({ title: 'Guess My Dick', text, url });
+        return;
+      } catch {}
+    }
+    // Fallback: copy
+    try {
+      await navigator.clipboard.writeText(text + '\n' + url);
+      alert('링크가 복사되었습니다! 친구에게 보내주세요 🔗');
+    } catch {
+      prompt('아래 링크를 복사해서 공유하세요:', url);
+    }
+  },
+
+  async shareImage() {
+    try {
+      const card = document.getElementById('result-card');
+      const canvas = await html2canvas(card, {
+        backgroundColor: '#ffffff',
+        scale: 2,
+        useCORS: true,
+        logging: false
+      });
+
+      canvas.toBlob(async (blob) => {
+        if (navigator.share && navigator.canShare) {
+          const file = new File([blob], 'guess-my-dick.png', { type: 'image/png' });
+          if (navigator.canShare({ files: [file] })) {
+            try {
+              await navigator.share({ files: [file], title: 'Guess My Dick 결과' });
+              return;
+            } catch {}
+          }
+        }
+        // Fallback: download
+        const a = document.createElement('a');
+        a.href = URL.createObjectURL(blob);
+        a.download = `guess-my-dick-${state.name}.png`;
+        a.click();
+        URL.revokeObjectURL(a.href);
+      }, 'image/png');
+    } catch (e) {
+      console.error(e);
+      alert('이미지 생성에 실패했습니다');
+    }
+  },
+
+  restart() {
+    state.noseRatio = null;
+    state.fingerRatio = null;
+    state.result = null;
+    state.faceDetected = false;
+    state.handDetected = false;
+    // Reset UI
+    document.querySelectorAll('.capture-btn').forEach(b => b.classList.remove('captured'));
+    document.querySelectorAll('.analysis-step').forEach(s => {
+      s.classList.remove('active', 'done');
+    });
+    document.getElementById('r-pbar').style.width = '0%';
+    showScreen('s-info');
+  }
+};
+
+// ============ INIT ============
+document.addEventListener('DOMContentLoaded', () => {
+  // Populate country select
+  const sel = document.getElementById('inp-country');
+  Object.entries(COUNTRIES)
+    .sort((a, b) => a[1].name.localeCompare(b[1].name, 'ko'))
+    .forEach(([code, data]) => {
+      const opt = document.createElement('option');
+      opt.value = code;
+      opt.textContent = data.name;
+      if (code === 'KR') opt.selected = true;
+      sel.appendChild(opt);
+    });
+
+  // Check for group invite
+  const params = new URLSearchParams(window.location.search);
+  const g = params.get('g');
+  if (g) {
+    const members = decodeGroup(g);
+    if (members.length > 0) {
+      state.group = members;
+      const invite = document.getElementById('group-invite');
+      invite.style.display = 'block';
+      const preview = document.getElementById('invite-preview');
+      const sorted = [...members].sort((a, b) => b.size - a.size);
+      preview.innerHTML = sorted.slice(0, 3).map((m, i) =>
+        `${['👑','🥈','🥉'][i]} ${m.name}: ${m.size}cm`
+      ).join('<br>');
+      if (sorted.length > 3) {
+        preview.innerHTML += `<br>...외 ${sorted.length - 3}명`;
+      }
+    }
+  }
+});
+</script>
+</body>
+</html>
