@@ -84,7 +84,7 @@ select option{color:#333;background:#fff}
 .result-card::before{content:'';position:absolute;top:-2px;left:-2px;right:-2px;bottom:-2px;background:linear-gradient(135deg,#dc2626,#f59e0b,#dc2626);z-index:-1;border-radius:26px}
 .result-name{font-size:15px;color:#999;margin-bottom:8px}
 .result-object-emoji{font-size:80px;line-height:1;margin:4px 0}
-.result-size{font-size:84px;font-weight:900;background:linear-gradient(135deg,#dc2626,#e84a1e,#f59e0b);-webkit-background-clip:text;-webkit-text-fill-color:transparent;line-height:1}
+.result-size{font-size:84px;font-weight:900;color:#dc2626;background:linear-gradient(135deg,#dc2626,#e84a1e,#f59e0b);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;line-height:1}
 .result-unit{font-size:24px;font-weight:800;-webkit-text-fill-color:#999}
 .result-object-name{font-size:22px;font-weight:800;color:#1a1a1a;margin-top:8px}
 .result-object-desc{font-size:14px;color:#888;margin-top:2px}
@@ -1507,16 +1507,41 @@ const App = {
   },
 
   restart() {
+    this._stopAutoDetect();
+    this._isCapturing = false;
+    stopCamera();
     state.noseRatio = null;
     state.fingerRatio = null;
     state.result = null;
     state.faceDetected = false;
     state.handDetected = false;
     // Reset UI
-    document.querySelectorAll('.capture-btn').forEach(b => b.classList.remove('captured'));
+    document.querySelectorAll('.capture-btn').forEach(b => {
+      b.classList.remove('captured');
+      b.style.display = '';
+    });
     document.querySelectorAll('.analysis-step').forEach(s => {
       s.classList.remove('active', 'done');
     });
+    // Clear camera canvases and frozen state
+    document.querySelectorAll('.camera-wrap').forEach(wrap => {
+      wrap.classList.remove('frozen');
+      this._clearScanEffects(wrap);
+      wrap.querySelectorAll('.countdown-display').forEach(e => e.remove());
+      const canvas = wrap.querySelector('canvas');
+      if (canvas) {
+        canvas.classList.remove('frozen-frame');
+        const ctx = canvas.getContext('2d');
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+      }
+    });
+    // Reset face guide
+    const faceGuide = document.querySelector('#s-face .face-guide');
+    if (faceGuide) faceGuide.classList.remove('detected');
+    // Reset hand guide
+    const handGuide = document.querySelector('#s-hand .hand-guide');
+    if (handGuide) handGuide.style.opacity = '1';
+    // Reset result
     document.getElementById('r-pbar').style.width = '0%';
     showScreen('s-info');
   }
