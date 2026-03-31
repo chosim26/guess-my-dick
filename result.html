@@ -3,10 +3,20 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
-<title>Guess My Dick - 결과</title>
-<meta property="og:title" content="Guess My Dick - AI 사이즈 예측 결과">
-<meta property="og:description" content="AI가 예측한 내 사이즈 결과 확인!">
+<title>Guess My D🌶️ck - 결과</title>
+<meta property="og:title" content="Guess My D🌶️ck - AI 사이즈 예측 결과">
+<meta property="og:description" content="AI가 얼굴과 손만 보고 예측한 사이즈! 과연 너는 상위 몇 %?">
+<meta property="og:image" content="https://hot.chosim.me/og-image.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
 <meta property="og:type" content="website">
+<meta property="og:url" content="https://hot.chosim.me">
+<meta property="og:site_name" content="Guess My D🌶️ck">
+<!-- Twitter Card -->
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Guess My D🌶️ck - AI 사이즈 예측">
+<meta name="twitter:description" content="AI가 얼굴과 손만 보고 예측한 사이즈! 과연 너는 상위 몇 %?">
+<meta name="twitter:image" content="https://hot.chosim.me/og-image.png">
 <!-- GA4 -->
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-9J17MFZ457"></script>
 <script>
@@ -265,7 +275,7 @@ function renderResult(data) {
           `).join('')}
         </div>
         <div class="result-disclaimer">${RT.disclaimer}</div>
-        <div class="result-watermark">GUESS MY DICK</div>
+        <div class="result-watermark">GUESS MY D🌶️CK</div>
       </div>
       <div class="ranking-section fade-in fade-in-d3" id="ranking-section" style="display:none">
         <div class="ranking-title">${RT.ranking_title}</div>
@@ -461,13 +471,22 @@ async function shareImage() {
     // Disclaimer
     ctx.fillStyle = '#555';
     ctx.font = '400 16px sans-serif';
-    ctx.fillText('* 발기 시 기준 예측 · 엔터테인먼트 목적', W/2, 940);
+    ctx.fillText('* 발기 시 기준 예측 · 엔터테인먼트 목적', W/2, 920);
+
+    // CTA banner
+    ctx.fillStyle = '#dc2626';
+    ctx.beginPath(); rr(ctx, 80, 945, W - 160, 60, 12); ctx.fill();
+    ctx.fillStyle = '#fff';
+    ctx.font = '800 22px sans-serif';
+    ctx.fillText('🍆 나도 해보기 → hot.chosim.me', W/2, 982);
+
+    // Watermark
+    ctx.fillStyle = '#333';
+    ctx.font = '600 16px sans-serif';
+    ctx.fillText('GUESS MY D🌶️CK', W/2, 1040);
     ctx.fillStyle = '#444';
-    ctx.font = '600 18px sans-serif';
-    ctx.fillText('GUESS MY DICK', W/2, 975);
-    ctx.fillStyle = '#555';
-    ctx.font = '400 16px sans-serif';
-    ctx.fillText('hot.chosim.me', W/2, 1005);
+    ctx.font = '400 14px sans-serif';
+    ctx.fillText('AI 사이즈 예측 테스트', W/2, 1065);
 
     // Convert to data URL (more compatible than toBlob on mobile)
     const dataUrl = canvas.toDataURL('image/png');
