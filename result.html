@@ -323,10 +323,12 @@ async function shareImage() {
       ctx.closePath();
     }
 
+    const S = 2; // scale factor for high-res
     const W = 750, H = 1100;
     const canvas = document.createElement('canvas');
-    canvas.width = W; canvas.height = H;
+    canvas.width = W * S; canvas.height = H * S;
     const ctx = canvas.getContext('2d');
+    ctx.scale(S, S);
     ctx.textAlign = 'center';
 
     // Background
