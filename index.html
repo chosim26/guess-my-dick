@@ -937,13 +937,13 @@ const App = {
           this._detectCount++;
           guide.classList.add('detected');
 
-          if (this._detectCount >= 4) {
+          if (this._detectCount >= 3) {
             status.textContent = '✓ 자동 촬영!';
             this._stopAutoDetect();
             this.captureFace();
             return;
           } else {
-            const left = 4 - this._detectCount;
+            const left = 3 - this._detectCount;
             status.textContent = `얼굴 인식됨! ${left}...`;
             // Show countdown number
             wrap.querySelectorAll('.countdown-display').forEach(e => e.remove());
@@ -1345,17 +1345,17 @@ const App = {
         const canvas = captureFrame(video);
         const result = await analyzeHand(canvas);
 
-        if (result && result.ratio) {
+        if (result && result.ratio && result.ratio > 0.85 && result.ratio < 1.15) {
           this._handDetectCount++;
           if (guide) guide.style.opacity = '0';
 
-          if (this._handDetectCount >= 4) {
+          if (this._handDetectCount >= 3) {
             status.textContent = '✓ 자동 촬영!';
             this._stopAutoDetect();
             this.captureHand();
             return;
           } else {
-            const left = 4 - this._handDetectCount;
+            const left = 3 - this._handDetectCount;
             status.textContent = `손 인식됨! ${left}...`;
             wrap.querySelectorAll('.countdown-display').forEach(e => e.remove());
             if (left <= 3) {
