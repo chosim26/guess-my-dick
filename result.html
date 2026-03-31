@@ -272,7 +272,8 @@ async function shareChallenge() {
 
   if (navigator.share) {
     try {
-      await navigator.share({ text, url });
+      // url만 따로 보내면 카톡이 OG 미리보기로 표시
+      await navigator.share({ url });
       return;
     } catch {}
   }
