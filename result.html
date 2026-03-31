@@ -272,8 +272,7 @@ async function shareChallenge() {
 
   if (navigator.share) {
     try {
-      // url만 따로 보내면 카톡이 OG 미리보기로 표시
-      await navigator.share({ url });
+      await navigator.share({ text, url });
       return;
     } catch {}
   }
@@ -289,45 +288,121 @@ async function shareImage() {
   if (!resultData) return;
   track('share_image', { score: resultData.totalScore, size: resultData.size });
   try {
-    const card = document.getElementById('result-card');
-    // Force solid colors for html2canvas (can't render rgba/gradients/backdrop-filter)
-    card.style.background = '#141414';
-    card.style.backdropFilter = 'none';
-    card.style.webkitBackdropFilter = 'none';
-    card.style.boxShadow = 'none';
-    // Fix gradient text - make solid color
-    card.querySelectorAll('*').forEach(el => {
-      const cs = getComputedStyle(el);
-      if (cs.webkitTextFillColor === 'transparent' || cs.color === 'transparent') {
-        el.dataset.origColor = el.style.color;
-        el.dataset.origFill = el.style.webkitTextFillColor;
-        el.dataset.origBg = el.style.background;
-        el.style.webkitTextFillColor = '';
-        el.style.background = 'none';
-        el.style.color = '#dc2626';
-      }
-      if (cs.backgroundColor.includes('rgba')) {
-        el.dataset.origBgc = el.style.backgroundColor;
-        el.style.backgroundColor = cs.backgroundColor.replace(/[\d.]+\)$/, '1)');
-      }
-    });
-    const canvas = await html2canvas(card, {
-      backgroundColor: '#0a0a0a',
-      scale: 2,
-      useCORS: true,
-      logging: false
-    });
-    // Restore original styles
-    card.style.background = '';
-    card.style.backdropFilter = '';
-    card.style.webkitBackdropFilter = '';
-    card.style.boxShadow = '';
-    card.querySelectorAll('[data-orig-color],[data-orig-fill],[data-orig-bgc]').forEach(el => {
-      if (el.dataset.origFill !== undefined) el.style.webkitTextFillColor = el.dataset.origFill;
-      if (el.dataset.origColor !== undefined) el.style.color = el.dataset.origColor;
-      if (el.dataset.origBg !== undefined) el.style.background = el.dataset.origBg;
-      if (el.dataset.origBgc !== undefined) el.style.backgroundColor = el.dataset.origBgc;
-    });
+    const { name, size, girth, totalScore, percentile } = resultData;
+    const obj = getObject(size);
+    const comment = getComment(percentile);
+
+    // Draw result card directly on canvas (no html2canvas dependency)
+    const W = 750, H = 1200;
+    const canvas = document.createElement('canvas');
+    canvas.width = W; canvas.height = H;
+    const ctx = canvas.getContext('2d');
+
+    // Background
+    ctx.fillStyle = '#0a0a0a';
+    ctx.fillRect(0, 0, W, H);
+
+    // Card bg
+    const cx = 40, cy = 40, cw = W - 80, ch = H - 80;
+    ctx.fillStyle = '#141414';
+    ctx.beginPath();
+    ctx.roundRect(cx, cy, cw, ch, 24);
+    ctx.fill();
+
+    // Border
+    ctx.strokeStyle = '#dc2626';
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.roundRect(cx, cy, cw, ch, 24);
+    ctx.stroke();
+
+    // Name
+    ctx.fillStyle = '#888';
+    ctx.font = '600 28px -apple-system, sans-serif';
+    ctx.textAlign = 'center';
+    ctx.fillText(name + '의 분석 결과', W/2, 110);
+
+    // Emoji
+    ctx.font = '120px -apple-system, sans-serif';
+    ctx.fillText(obj.emoji, W/2, 250);
+
+    // Size × Girth
+    ctx.fillStyle = '#dc2626';
+    ctx.font = '900 72px -apple-system, sans-serif';
+    ctx.fillText(size, W/2 - 90, 360);
+    ctx.fillStyle = '#555';
+    ctx.font = '400 40px -apple-system, sans-serif';
+    ctx.fillText('×', W/2, 355);
+    ctx.fillStyle = '#dc2626';
+    ctx.font = '900 72px -apple-system, sans-serif';
+    ctx.fillText(girth, W/2 + 90, 360);
+
+    // Labels
+    ctx.fillStyle = '#888';
+    ctx.font = '400 22px -apple-system, sans-serif';
+    ctx.fillText('길이 (cm)', W/2 - 90, 395);
+    ctx.fillText('둘레 (cm)', W/2 + 90, 395);
+
+    // Total score
+    ctx.fillStyle = '#666';
+    ctx.font = '400 24px -apple-system, sans-serif';
+    ctx.fillText('총점', W/2, 460);
+    ctx.fillStyle = '#f59e0b';
+    ctx.font = '900 96px -apple-system, sans-serif';
+    ctx.fillText(totalScore, W/2 - 30, 560);
+    ctx.fillStyle = '#555';
+    ctx.font = '400 32px -apple-system, sans-serif';
+    ctx.fillText('/ 100', W/2 + 70, 555);
+
+    // Object name
+    ctx.fillStyle = '#fff';
+    ctx.font = '800 36px -apple-system, sans-serif';
+    ctx.fillText('"' + obj.name + '" 사이즈', W/2, 640);
+    ctx.fillStyle = '#999';
+    ctx.font = '400 24px -apple-system, sans-serif';
+    ctx.fillText(obj.desc, W/2, 680);
+
+    // Divider
+    ctx.fillStyle = '#333';
+    ctx.fillRect(W/2 - 40, 710, 80, 2);
+
+    // Percentile
+    ctx.fillStyle = '#888';
+    ctx.font = '400 22px -apple-system, sans-serif';
+    ctx.fillText('전 세계 남성 기준', W/2, 755);
+    ctx.fillStyle = '#dc2626';
+    ctx.font = '900 52px -apple-system, sans-serif';
+    ctx.fillText('상위 ' + (100 - percentile) + '%', W/2, 815);
+
+    // Percentile bar
+    ctx.fillStyle = '#222';
+    ctx.beginPath(); ctx.roundRect(100, 840, W - 200, 14, 7); ctx.fill();
+    const grad = ctx.createLinearGradient(100, 0, W - 100, 0);
+    grad.addColorStop(0, '#f59e0b'); grad.addColorStop(1, '#dc2626');
+    ctx.fillStyle = grad;
+    ctx.beginPath(); ctx.roundRect(100, 840, (W - 200) * percentile / 100, 14, 7); ctx.fill();
+
+    // Comment
+    ctx.fillStyle = 'rgba(220,38,38,0.15)';
+    ctx.beginPath(); ctx.roundRect(80, 890, W - 160, 90, 14); ctx.fill();
+    ctx.fillStyle = '#fff';
+    ctx.font = '800 28px -apple-system, sans-serif';
+    ctx.fillText(comment.text, W/2, 930);
+    ctx.fillStyle = '#aaa';
+    ctx.font = '400 20px -apple-system, sans-serif';
+    ctx.fillText(comment.sub, W/2, 962);
+
+    // Disclaimer
+    ctx.fillStyle = '#555';
+    ctx.font = '400 18px -apple-system, sans-serif';
+    ctx.fillText('* 발기 시 기준 예측 · 엔터테인먼트 목적', W/2, 1050);
+    ctx.fillStyle = '#444';
+    ctx.font = '600 20px -apple-system, sans-serif';
+    ctx.letterSpacing = '2px';
+    ctx.fillText('GUESS MY DICK', W/2, 1090);
+    ctx.fillStyle = '#555';
+    ctx.font = '400 18px -apple-system, sans-serif';
+    ctx.fillText('hot.chosim.me', W/2, 1120);
 
     canvas.toBlob(async (blob) => {
       if (navigator.share && navigator.canShare) {
