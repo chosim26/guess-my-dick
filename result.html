@@ -68,6 +68,7 @@ body{font-family:'Pretendard Variable',system-ui,-apple-system,sans-serif;backgr
 .result-disclaimer{font-size:10px;color:#555;margin-top:16px}
 .result-watermark{font-size:11px;color:#444;margin-top:8px;letter-spacing:1px}
 .share-explain{font-size:12px;color:rgba(255,255,255,.4);text-align:center;line-height:1.5;margin:-4px 0 4px}
+.share-taunt{font-size:14px;color:rgba(255,255,255,.7);text-align:center;line-height:1.6;margin:-4px 0 8px;padding:12px;background:rgba(220,38,38,.1);border:1px solid rgba(220,38,38,.2);border-radius:12px}
 /* Group Ranking */
 .ranking-section{width:100%;max-width:380px;background:rgba(220,38,38,.08);border:1px solid rgba(220,38,38,.2);backdrop-filter:blur(10px);border-radius:20px;padding:20px;margin-top:4px}
 .ranking-title{font-size:18px;font-weight:800;margin-bottom:12px;text-align:center}
@@ -211,7 +212,7 @@ function renderResult(data) {
       </div>
       <div class="share-buttons fade-in fade-in-d4">
         <button class="btn btn-primary" onclick="shareChallenge()">🔗 친구에게 도전장 보내기</button>
-        <p class="share-explain">링크를 받은 친구가 측정하면<br>자동으로 랭킹이 업데이트됩니다!</p>
+        <p class="share-taunt">공유 안 하는 사나이들...<br>뭐 딱 봐도 결과 알겠제~ 🤭<br><span style="font-size:11px;opacity:.5">크게 나올 때까지 반복하는 소리 들린다~</span></p>
         <button class="btn btn-secondary" onclick="shareImage()">📸 결과 이미지 저장</button>
         <button class="btn btn-secondary btn-small" onclick="location.href='index.html'">🔄 다시 측정하기</button>
       </div>
